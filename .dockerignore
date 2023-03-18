@@ -1,0 +1,9 @@
+node_modules
+dist
+.Idea
+.DS_Store
+.eslintrc.js
+.git
+.gitignore
+.prettierrc
+Makefile
