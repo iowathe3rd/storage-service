@@ -14,10 +14,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { s3Client } from '../libs/s3Client';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-
 @Injectable()
 export class S3Service {
-	async uploadFile(file: Express.Multer.File, key: string): Promise<{ uploadedFile: PutObjectCommandOutput, key: string }> {
+	async uploadFile(
+		file: Express.Multer.File,
+		key: string,
+	): Promise<{ uploadedFile: PutObjectCommandOutput; key: string }> {
 		const fileStream = Readable.from(file.buffer);
 		const uploadParams: PutObjectCommandInput = {
 			Bucket: process.env.AWS_BUCKET_NAME,
@@ -30,16 +32,16 @@ export class S3Service {
 		const data = await s3Client.send(command);
 		return {
 			uploadedFile: data,
-			key: key
+			key: key,
 		};
 	}
 
-	async getPreSignedUrl(key: string){
+	async getPreSignedUrl(key: string) {
 		const getObjectParams = {
 			Bucket: process.env.AWS_BUCKET_NAME,
 			Key: key,
-		}
-		const command = new GetObjectCommand(getObjectParams)
+		};
+		const command = new GetObjectCommand(getObjectParams);
 		return await getSignedUrl(s3Client, command, { expiresIn: 300 });
 	}
 
@@ -47,12 +49,12 @@ export class S3Service {
 		try {
 			const deleteObjectParams = {
 				Bucket: process.env.AWS_BUCKET_NAME,
-				Key: key
-			}
-			const command = new DeleteObjectCommand(deleteObjectParams)
-			return await s3Client.send(command)
-		}catch (e) {
-			console.log(e)
+				Key: key,
+			};
+			const command = new DeleteObjectCommand(deleteObjectParams);
+			return await s3Client.send(command);
+		} catch (e) {
+			console.log(e);
 			return new Error(e);
 		}
 	}
@@ -63,7 +65,9 @@ export class S3Service {
 				Bucket: process.env.AWS_BUCKET_NAME,
 				Prefix: fullPath,
 			});
-			const { Contents, CommonPrefixes } = await s3Client.send(listObjectsCommand);
+			const { Contents, CommonPrefixes } = await s3Client.send(
+				listObjectsCommand,
+			);
 			if (Contents && Contents.length > 0) {
 				const deleteObjectsCommand = new DeleteObjectsCommand({
 					Bucket: process.env.AWS_BUCKET_NAME,
@@ -81,9 +85,15 @@ export class S3Service {
 					await this.deleteFolder(commonPrefix.Prefix);
 				}
 			}
-		}catch (e){
+		} catch (e) {
 			console.error(e);
-			throw new HttpException({reason: "Something went wrong while deleting folder", error: e}, HttpStatus.BAD_GATEWAY)
+			throw new HttpException(
+				{
+					reason: 'Something went wrong while deleting folder',
+					error: e,
+				},
+				HttpStatus.BAD_GATEWAY,
+			);
 		}
 	}
 }

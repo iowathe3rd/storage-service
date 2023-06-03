@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateFolderDTO {
@@ -14,7 +14,7 @@ export class CreateFolderDTO {
 export class UpdateFolderDto {
 	@IsString()
 	@ApiProperty()
-	id: string
+	id: string;
 
 	@IsString()
 	@ApiProperty()

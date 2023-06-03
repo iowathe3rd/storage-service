@@ -14,11 +14,13 @@ async function bootstrap() {
 		.build();
 	app.enableVersioning({
 		type: VersioningType.URI,
-		defaultVersion: "1"
-	})
+		defaultVersion: '1',
+	});
 	const document = SwaggerModule.createDocument(app, config);
-	SwaggerModule.setup('openapi', app, document);
+	SwaggerModule.setup('openapi', app, document, {yamlDocumentUrl: "openapi-yaml"});
 	validateEnv();
 	await app.listen(3000);
 }
-bootstrap();
+bootstrap().catch((e)=>{
+	console.log(e)
+});

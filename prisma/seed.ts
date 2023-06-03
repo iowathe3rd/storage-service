@@ -1,5 +1,5 @@
 import { db } from '../src/libs/prisma';
-import { StorageLevels } from '../src/dto/user.dto';
+import { StorageLevels } from '../src/modules/admin-api/dto/user.dto';
 
 async function seed() {
 	await db.user.create({

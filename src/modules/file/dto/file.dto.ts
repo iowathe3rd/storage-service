@@ -7,7 +7,7 @@ export class UploadFileDto {
 	folderId: string;
 }
 
-export class UpdateFileDto{
+export class UpdateFileDto {
 	@IsUUID()
 	@ApiProperty()
 	folderId: string;

@@ -4,17 +4,18 @@ import {
 	Delete,
 	Get,
 	HttpStatus,
-	Param, Patch,
+	Param,
+	Patch,
 	Post,
 	Req,
 	Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 
-import { AuthedRequest } from '../../middleware/auth.middleware';
+import { AuthedRequest } from '../../../middleware/auth.middleware';
 
-import { CreateFolderDTO, UpdateFolderDto } from '../../dto/folder.dto';
-import { FolderService } from '../../services/folder/folder.service';
+import { CreateFolderDTO, UpdateFolderDto } from '../dto/folder.dto';
+import { FolderService } from '../services/folder.service';
 
 @Controller('folder')
 export class FolderController {
@@ -35,7 +36,6 @@ export class FolderController {
 	async getFolder(
 		@Res() res: Response,
 		@Param('id') id: string,
-		@Req() req: AuthedRequest,
 	): Promise<Response> {
 		const data = await this.folderService.getFolder(id);
 		return res.status(HttpStatus.OK).json({ data: data });

@@ -1,9 +1,8 @@
 import * as joi from 'joi';
 
-
-export function validateEnv(): void{
-// Определить схему для валидации переменных окружения
-	console.warn("Env validating STARTED");
+export function validateEnv(): void {
+	// Определить схему для валидации переменных окружения
+	console.warn('Env validating STARTED');
 	const schema = joi.object({
 		DATABASE_USER: joi.string().required(),
 		PORT: joi.number().port().required(),
@@ -18,13 +17,13 @@ export function validateEnv(): void{
 		// Добавьте остальные переменные окружения с их схемами валидации
 	});
 
-// Провалидировать переменные окружения
+	// Провалидировать переменные окружения
 	const { error } = schema.validate(process.env, {
 		abortEarly: false,
 		stripUnknown: true,
 	});
 
-// Если есть ошибки валидации, вывести их в консоль
+	// Если есть ошибки валидации, вывести их в консоль
 	if (error) {
 		console.error('Ошибка валидации переменных окружения:');
 		error.details.forEach((err) => {
@@ -32,5 +31,5 @@ export function validateEnv(): void{
 		});
 		process.exit(1);
 	}
-	console.warn("Env validating STOPPED");
+	console.warn('Env validating STOPPED');
 }
