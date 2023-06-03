@@ -1,6 +1,9 @@
 # compiled output
 /dist
 /node_modules
+.env
+.env.docker
+dev.env
 
 # Logs
 logs

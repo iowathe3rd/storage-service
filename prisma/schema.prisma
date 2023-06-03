@@ -10,21 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Owner {
+model User {
   id           String       @id @default(uuid())
-  email        String       @unique
+  userId       String       @unique
   storageLevel StorageLevel @default(Free)
-  files        Files[]
+  folders      Folder[]
+  files        File[]
+  createdAt    DateTime     @default(now())
 }
 
-model Files {
-  id           String @id @default(uuid())
-  key          String @unique
-  size         Int
+model Folder {
+  id             String   @id @default(uuid())
+  name           String   @default("New Folder")
+  fullPath       String   @unique
+  size           Int      @default(0)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId         String
+  parentFolderId String?
+  parentFolder   Folder?  @relation("ChildFolders", fields: [parentFolderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  childFolders   Folder[] @relation("ChildFolders")
+  files          File[]
+  createdAt      DateTime @default(now())
+}
+
+model File {
+  id           String   @id @default(uuid())
+  s3Key        String   @unique
+  sizeInBytes  Int
+  fullPath     String   @unique
+  fullName     String
+  name         String
   extension    String
-  originalName String
-  owner        Owner  @relation(fields: [ownerId], references: [id])
-  ownerId      String
+  folder       Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  folderId     String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       String
+  createdAt    DateTime @default(now())
 }
 
 enum StorageLevel {

@@ -1,27 +1,25 @@
-import { ForbiddenException, Injectable, NestMiddleware } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { authenticate } from '../libs/authClient';
+import { User } from '@supabase/gotrue-js';
 
-@Injectable()
-export class AuthMiddleware implements NestMiddleware {
-	use(req: Request, res: Response, next: NextFunction) {
-		const bearerHeader = req.headers.authorization;
-		if(!bearerHeader){
-			throw new ForbiddenException('Please register or sign in.');
-		}
-		const accessToken = bearerHeader.split(' ')[1];
-		let user;
-		try {
-			//TODO auth
-			console.log("authed")
-			user = accessToken;
-		} catch (error) {
-			throw new ForbiddenException('Please register or sign in.');
-		}
-		if (user) {
-			// @ts-ignore
-			req.userId = user;
-		}
-		console.log(req.headers);
-		next();
+
+export async function authMiddleware(
+	req: AuthedRequest,
+	res: Response,
+	next: NextFunction,
+) {
+	try{
+		console.log(req.headers.authorization.split(" ")[1]);
+		const { user } = await authenticate(req.headers.authorization.split(" ")[1]);
+		req.user = user;
+	} catch (error) {
+		console.log(error);
+		throw new ForbiddenException('Please register or sign in.');
 	}
+	next();
+}
+
+export interface AuthedRequest extends Request {
+	user: User;
 }

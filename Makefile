@@ -1,2 +1,3 @@
-start:
-	docker compose up -d --build
+dev:
+	@npm run start:dev
+
