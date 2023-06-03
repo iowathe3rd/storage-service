@@ -9,14 +9,13 @@ export async function authMiddleware(
 	next: NextFunction,
 ) {
 	try {
-		console.log(req.headers.authorization.split(' ')[1]);
-		const { user } = await authenticate(
-			req.headers.authorization.split(' ')[1],
-		);
+		const {user} = await authenticate(req.headers.authorization.split(' ')[1]).catch(e=>{
+			throw new ForbiddenException({reason: "Please register or sign in"})
+		});
 		req.user = user;
-	} catch (error) {
-		console.log(error);
-		throw new ForbiddenException('Please register or sign in.');
+	}catch (e) {
+		console.log(e);
+		throw new ForbiddenException({reason: "Please register or sign in"})
 	}
 	next();
 }

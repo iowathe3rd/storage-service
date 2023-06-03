@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,6 +7,8 @@ import { FolderModule } from './modules/folder/folder.module';
 
 import { ConfigModule } from '@nestjs/config';
 import { AdminApiModule } from './modules/admin-api/admin-api.module';
+import { authMiddleware } from './middleware/auth.middleware';
+import { AdminApiController } from './modules/admin-api/controllers/admin-api.controller';
 
 @Module({
 	imports: [
@@ -21,4 +23,11 @@ import { AdminApiModule } from './modules/admin-api/admin-api.module';
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+	configure(consumer: MiddlewareConsumer): any {
+		consumer
+			.apply(authMiddleware)
+			.exclude("admin-api")
+			.forRoutes("*")
+	}
+}

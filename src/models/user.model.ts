@@ -20,6 +20,14 @@ export class UserModel {
 					},
 				},
 			},
+			select: {
+				id: true,
+				userId: true,
+				folders: true,
+				storageLevel: true,
+				files: true,
+				createdAt: true
+			}
 		});
 	}
 }

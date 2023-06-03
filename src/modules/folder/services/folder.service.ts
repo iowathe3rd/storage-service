@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { db } from '../../../libs/prisma';
 import { CreateFolderDTO, UpdateFolderDto } from '../dto/folder.dto';
 import { Folder, Prisma } from '@prisma/client';
@@ -18,12 +18,7 @@ export class FolderService {
 						id: data.parentFolderId,
 					},
 				})
-				.catch((e) => {
-					throw new HttpException(
-						{ reason: 'Parent folder not found', error: e },
-						HttpStatus.BAD_REQUEST,
-					);
-				});
+			if(!parentFolder) throw new NotFoundException({reason: "Folder not found"});
 			const folderToCreate: Prisma.FolderCreateInput = {
 				name: data.name,
 				parentFolder: {
@@ -83,17 +78,13 @@ export class FolderService {
 			const folderToUpdate = await db.folder
 				.findUnique({
 					where: {
-						id: dto.id,
+						id: id
 					},
 				})
-				.catch((e) => {
-					throw new HttpException(
-						{ reason: 'Requested folder not found', error: e },
-						HttpStatus.BAD_REQUEST,
-					);
-				});
+			if(!folderToUpdate) throw new NotFoundException({reason: "Folder not found"})
 			let data: Prisma.FolderUpdateInput = {
 				name: dto.name,
+				fullPath: folderToUpdate.fullPath.split("/").slice(0, -1).join("/") + "/" + dto.name,
 				parentFolder: {
 					connect: {
 						id: dto.parentFolderId,
@@ -103,6 +94,7 @@ export class FolderService {
 			if (dto.parentFolderId === folderToUpdate.parentFolderId) {
 				data = {
 					name: dto.name,
+					fullPath: folderToUpdate.fullPath.split("/").slice(0, -1).join("/") + "/" + dto.name,
 				};
 			}
 			return await db.folder

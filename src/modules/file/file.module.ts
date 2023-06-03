@@ -18,6 +18,6 @@ import { FileModel } from '../../models/file.model';
 })
 export class FileModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {
-		consumer.apply(authMiddleware).forRoutes(FileController);
+		consumer.apply(authMiddleware).forRoutes("file");
 	}
 }

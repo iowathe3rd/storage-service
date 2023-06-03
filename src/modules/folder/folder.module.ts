@@ -11,6 +11,8 @@ import { S3Service } from '../../services/s3.service';
 })
 export class FolderModule implements NestModule {
 	configure(consumer: MiddlewareConsumer) {
-		consumer.apply(authMiddleware).forRoutes(FolderController);
+		consumer
+			.apply(authMiddleware)
+			.forRoutes("folder")
 	}
 }

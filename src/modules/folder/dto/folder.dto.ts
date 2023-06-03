@@ -12,9 +12,6 @@ export class CreateFolderDTO {
 }
 
 export class UpdateFolderDto {
-	@IsString()
-	@ApiProperty()
-	id: string;
 
 	@IsString()
 	@ApiProperty()
