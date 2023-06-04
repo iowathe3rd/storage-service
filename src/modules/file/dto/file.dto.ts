@@ -10,9 +10,9 @@ export class UploadFileDto {
 export class UpdateFileDto {
 	@IsUUID()
 	@ApiProperty()
-	folderId: string;
+	targetFolderId: string;
 
 	@IsString()
 	@ApiProperty()
-	originalName: string;
+	newFileName: string
 }

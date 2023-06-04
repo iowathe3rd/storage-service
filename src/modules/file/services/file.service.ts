@@ -3,8 +3,8 @@ import { db } from '../../../libs/prisma';
 import { S3Service } from '../../../services/s3.service';
 import { FolderModel } from '../../../models/folder.model';
 import { UpdateFileDto } from '../dto/file.dto';
-import { Prisma } from '@prisma/client';
 import { splitFileName } from '../../../utils/getFileName';
+import { encodeUrlWithPlus } from '../../../utils/encodeURIWithPlus';
 
 @Injectable()
 export class FileService {
@@ -121,26 +121,60 @@ export class FileService {
 
 	async update(id: string, updateFileDto: UpdateFileDto) {
 		try {
-			const fileToUpdate = await db.file.findUnique({
-				where: {
-					id: id,
-				},
+			return await db.$transaction(async (prisma) => {
+				const fileToUpdate = await prisma.file.findUnique({
+					where: {
+						id: id,
+					},
+					include: {
+						folder: true
+					}
+				});
+
+				if (!fileToUpdate) {
+					throw new NotFoundException("Requested file not found");
+				}
+
+				const targetFolder = await prisma.folder.findUnique({
+					where: {
+						id: updateFileDto.targetFolderId,
+					},
+				});
+
+				if (!targetFolder) {
+					throw new NotFoundException("Target folder not found");
+				}
+				const newFullPath = targetFolder.fullPath + updateFileDto.newFileName + "." +  fileToUpdate.extension
+				console.log("_________");
+				console.error(fileToUpdate.s3Key);
+				console.error(newFullPath);
+				console.log("_________");
+
+				await this.s3Service.moveFile(
+					encodeUrlWithPlus(fileToUpdate.s3Key),
+					encodeUrlWithPlus(newFullPath)
+				);
+
+				return prisma.file.update({
+					where: {
+						id: fileToUpdate.id,
+					},
+					data: {
+						fullPath: newFullPath,
+						folder: {
+							connect: {
+								id: updateFileDto.targetFolderId,
+							},
+						},
+						s3Key: newFullPath,
+						name: updateFileDto.newFileName,
+						fullName: `${updateFileDto.newFileName}.${fileToUpdate.extension}`,
+					},
+				});
 			});
-			if (!fileToUpdate) {
-				return new HttpException({reason: "Requested file not found"}, HttpStatus.BAD_REQUEST);
-			}
-			return await db.file.update({
-				where: {
-					id: id,
-				},
-				data: {
-					fullName: updateFileDto.originalName,
-					folderId: updateFileDto.folderId,
-				},
-			});
-		} catch (e) {
-			console.log(e);
-			return new HttpException({reason: "Requested file not found"}, HttpStatus.BAD_REQUEST);
+		} catch (error) {
+			console.error("Error while updating file:", error);
+			throw new HttpException({ reason: error.message }, HttpStatus.BAD_REQUEST);
 		}
 	}
 	async delete(id: string) {

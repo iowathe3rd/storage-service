@@ -1,28 +1,36 @@
 import { Readable } from 'stream';
 
 import {
-	DeleteObjectCommand,
+	CopyObjectCommand, CopyObjectCommandInput, CopyObjectCommandOutput,
+	DeleteObjectCommand, DeleteObjectCommandInput,
 	DeleteObjectsCommand,
 	GetObjectCommand,
 	ListObjectsV2Command,
 	PutObjectCommand,
 	PutObjectCommandInput,
-	PutObjectCommandOutput,
+	PutObjectCommandOutput, S3Client,
 } from '@aws-sdk/client-s3';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadGatewayException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { s3Client } from '../libs/s3Client';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import * as process from 'process';
 
 @Injectable()
 export class S3Service {
+	private readonly S3Client: S3Client;
+	private readonly AWSBucket: string
+	constructor() {
+		this.S3Client = s3Client;
+		this.AWSBucket = process.env.AWS_BUCKET_NAME;
+	}
 	async uploadFile(
 		file: Express.Multer.File,
 		key: string,
 	): Promise<{ uploadedFile: PutObjectCommandOutput; key: string }> {
 		const fileStream = Readable.from(file.buffer);
 		const uploadParams: PutObjectCommandInput = {
-			Bucket: process.env.AWS_BUCKET_NAME,
+			Bucket: this.AWSBucket,
 			Key: key,
 			Body: fileStream,
 			ContentType: file.mimetype,
@@ -43,6 +51,40 @@ export class S3Service {
 		};
 		const command = new GetObjectCommand(getObjectParams);
 		return await getSignedUrl(s3Client, command, { expiresIn: 300 });
+	}
+
+	async moveFile(copySourceKey: string, newAwsKey: string): Promise<void> {
+		try {
+			const copyParams: CopyObjectCommandInput = {
+				Bucket: this.AWSBucket,
+				CopySource: `${this.AWSBucket}/${copySourceKey}`,
+				Key: newAwsKey,
+			};
+
+			const deleteParams: DeleteObjectCommandInput = {
+				Bucket: this.AWSBucket,
+				Key: copySourceKey,
+			};
+
+			const copyCommand = new CopyObjectCommand(copyParams);
+			const deleteCommand = new DeleteObjectCommand(deleteParams);
+
+			// Выполняем операции копирования и удаления атомарно
+			await Promise.all([
+				s3Client.send(copyCommand),
+				s3Client.send(deleteCommand),
+			]);
+
+			// Если удаление успешно, то операция завершена успешно
+			return;
+		} catch (error) {
+			if (error.name === "NoSuchBucket") {
+				throw new BadGatewayException("Bucket does not exist");
+			} else {
+				console.error("Error while moving file:", error);
+				throw new BadGatewayException("Something went wrong");
+			}
+		}
 	}
 
 	async deleteFile(key: string) {

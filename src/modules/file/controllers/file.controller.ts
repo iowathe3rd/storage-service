@@ -24,7 +24,7 @@ export class FileController {
 
 	@Post('upload')
 	@UseInterceptors(FileInterceptor('file'))
-	async create(
+	async upload(
 		@Req() req: AuthedRequest,
 		@UploadedFile('file') file: Express.Multer.File,
 		@Query("folderid") folderId: string,
