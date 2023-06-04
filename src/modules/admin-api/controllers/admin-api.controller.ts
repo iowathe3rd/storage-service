@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { CreateUserDto } from '../dto/user.dto';
 import { UserService } from '../services/user.service';
 
-@Controller('admin-api')
+@Controller('admin')
 export class AdminApiController {
 	constructor(private readonly userService: UserService) {}
 	@Post('user-init')

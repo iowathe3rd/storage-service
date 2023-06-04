@@ -1,18 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Folder } from '@prisma/client';
 import { db } from '../libs/prisma';
 
 @Injectable()
 export class FolderModel {
 	async getFolderById(id: string): Promise<Folder> {
-		return await db.folder
+		const folder =  await db.folder
 			.findUnique({
 				where: {
 					id: id,
 				},
 			})
-			.catch((e) => {
-				throw new Error('Folder not found: ' + e);
-			});
+		if (!folder) {
+			throw new NotFoundException("Folder not Found");
+		}
+		return folder
 	}
 }

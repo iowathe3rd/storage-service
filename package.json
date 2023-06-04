@@ -35,6 +35,8 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "joi": "^17.9.2",
+    "nestjs-pino": "^3.2.0",
+    "pino-http": "^8.3.3",
     "puppeteer": "^19.8.5",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
@@ -82,8 +84,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   }
 }

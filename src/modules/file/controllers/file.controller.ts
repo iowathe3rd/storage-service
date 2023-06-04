@@ -10,7 +10,7 @@ import {
 	HttpStatus,
 	UseInterceptors,
 	UploadedFile,
-	Req,
+	Req, Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
@@ -27,11 +27,12 @@ export class FileController {
 	async create(
 		@Req() req: AuthedRequest,
 		@UploadedFile('file') file: Express.Multer.File,
-		@Body() body: UploadFileDto,
+		@Query("folderid") folderId: string,
 		@Res() res: Response,
 	): Promise<Response> {
+		console.log(folderId);
 		const { user } = req;
-		const data = await this.fileService.upload(body, file, user.id);
+		const data = await this.fileService.upload(folderId, file, user.id);
 		return res.status(HttpStatus.OK).json({ data });
 	}
 

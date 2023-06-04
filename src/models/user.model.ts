@@ -15,7 +15,7 @@ export class UserModel {
 				storageLevel: StorageLevels[dto.storageLevel],
 				folders: {
 					create: {
-						name: '__init',
+						name: dto.id,
 						fullPath: `${dto.id}/`,
 					},
 				},

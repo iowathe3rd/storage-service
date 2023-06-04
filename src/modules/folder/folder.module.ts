@@ -9,10 +9,4 @@ import { S3Service } from '../../services/s3.service';
 	controllers: [FolderController],
 	providers: [FolderService, S3Service],
 })
-export class FolderModule implements NestModule {
-	configure(consumer: MiddlewareConsumer) {
-		consumer
-			.apply(authMiddleware)
-			.forRoutes("folder")
-	}
-}
+export class FolderModule {}

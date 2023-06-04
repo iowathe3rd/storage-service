@@ -16,8 +16,4 @@ import { FileModel } from '../../models/file.model';
 		FileModel,
 	],
 })
-export class FileModule implements NestModule {
-	configure(consumer: MiddlewareConsumer) {
-		consumer.apply(authMiddleware).forRoutes("file");
-	}
-}
+export class FileModule {}

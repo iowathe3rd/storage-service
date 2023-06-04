@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod, VERSION_NEUTRAL } from '@nestjs/common';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,8 +7,10 @@ import { FolderModule } from './modules/folder/folder.module';
 
 import { ConfigModule } from '@nestjs/config';
 import { AdminApiModule } from './modules/admin-api/admin-api.module';
-import { authMiddleware } from './middleware/auth.middleware';
-import { AdminApiController } from './modules/admin-api/controllers/admin-api.controller';
+import { LoggerModule } from 'nestjs-pino';
+import { Auth2Middleware } from './middleware/auth2.middleware';
+import { FileController } from './modules/file/controllers/file.controller';
+import { FolderController } from './modules/folder/controllers/folder.controller';
 
 @Module({
 	imports: [
@@ -26,8 +28,8 @@ import { AdminApiController } from './modules/admin-api/controllers/admin-api.co
 export class AppModule implements NestModule{
 	configure(consumer: MiddlewareConsumer): any {
 		consumer
-			.apply(authMiddleware)
-			.exclude("admin-api")
-			.forRoutes("*")
+			.apply(Auth2Middleware)
+			.exclude("admin")
+			.forRoutes(FileController, FolderController)
 	}
 }
