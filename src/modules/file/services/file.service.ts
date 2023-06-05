@@ -196,7 +196,7 @@ export class FileService {
 			return deleted;
 		} catch (e) {
 			console.log(e);
-			return new HttpException({reason: "Requested file not found"}, HttpStatus.BAD_REQUEST);
+			return new HttpException({reason: "Something went wrong while deleting file"}, HttpStatus.BAD_REQUEST);
 		}
 	}
 

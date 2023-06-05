@@ -90,7 +90,7 @@ export class S3Service {
 	async deleteFile(key: string) {
 		try {
 			const deleteObjectParams = {
-				Bucket: process.env.AWS_BUCKET_NAME,
+				Bucket: this.AWSBucket,
 				Key: key,
 			};
 			const command = new DeleteObjectCommand(deleteObjectParams);
