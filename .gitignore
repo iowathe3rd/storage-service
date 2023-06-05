@@ -5,7 +5,7 @@
 .env.docker
 dev.env
 
-# Logs
+# Logsq
 logs
 *.log
 npm-debug.log*
